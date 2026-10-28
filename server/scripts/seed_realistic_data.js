@@ -1,0 +1,584 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbPath = path.resolve(__dirname, '../data/db.json');
+
+const CIVIC_ID = 'CIV-8K29-X4P7';
+
+const userRecord = {
+  id: 'usr-tarun-kushwaha',
+  civic_id: CIVIC_ID,
+  name: 'Tarun Kushwaha',
+  email: 'tarun.kushwaha@civiclens.ai',
+  avatar_url: '',
+  verified: true,
+  impact_points: 85,
+  saved_locations: [
+    {
+      id: 'loc-1',
+      label: 'Home',
+      address: 'B-42, Sector 62, Noida, Uttar Pradesh 201309',
+      latitude: 28.6280,
+      longitude: 77.3649
+    },
+    {
+      id: 'loc-2',
+      label: 'Workplace',
+      address: 'DLF Cyber City, Building 10, DLF Phase 2, Gurugram, Haryana 122002',
+      latitude: 28.4950,
+      longitude: 77.0890
+    },
+    {
+      id: 'loc-3',
+      label: 'College',
+      address: 'Knowledge Park III, Greater Noida, Uttar Pradesh 201310',
+      latitude: 28.4720,
+      longitude: 77.4890
+    }
+  ],
+  created_at: '2026-01-15T09:00:00.000Z',
+  updated_at: '2026-10-28T00:00:00.000Z'
+};
+
+const complaints = [
+  // 1. RESOLVED (Canonical Case from Spec: CASE-2026-00142)
+  {
+    id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    civic_id: CIVIC_ID,
+    image_url: '/pothole-demo.jpg',
+    category: 'Pothole',
+    severity: 'HIGH',
+    confidence: 0.964,
+    description: 'Deep circular pothole (approx 45cm diameter, 8cm depth) on the eastbound carriageway of Sector 62 arterial road. Causing severe vehicle swerving and hazard to two-wheelers.',
+    hazard: 'High collision risk during nighttime and rain pooling',
+    department: 'Central Public Works Department (CPWD)',
+    urgency: 'HIGH',
+    recommended_action: 'Cold-mix asphalt patch and compaction',
+    severity_reasons: [
+      'High vehicle traffic density on primary arterial connector',
+      'Pothole depth exceeds 50mm statutory threshold',
+      'Located within two-wheeler braking corridor'
+    ],
+    contains_people_or_plates: false,
+    box_2d: [0.35, 0.42, 0.68, 0.78],
+    road_type: 'Primary Urban Arterial Road (4 Lanes)',
+    complaint_title: 'Dangerous Pothole on Sector 62 Main Arterial Road',
+    complaint_text_ai: 'AI Vision verified 45cm diameter roadway crater at Sector 62. Risk level evaluated as HIGH with active 48h SLA response mandate.',
+    complaint_text_final: 'Dangerous deep pothole on eastbound lane of Sector 62 Main Road near Fortis Hospital cut, Noida. Immediate patch repair requested.',
+    latitude: 28.6285,
+    longitude: 77.3654,
+    address: 'Eastbound Arterial Road, Sector 62, Noida, UP 201309',
+    status: 'RESOLVED',
+    report_count: 3,
+    created_at: '2026-09-12T08:30:00.000Z',
+    updated_at: '2026-09-14T14:45:00.000Z'
+  },
+
+  // 2. UNDER_INSPECTION
+  {
+    id: 'cmp-00143',
+    case_id: 'CASE-2026-00143',
+    civic_id: CIVIC_ID,
+    image_url: '/civic_bg.jpg',
+    category: 'Water Leakage',
+    severity: 'MEDIUM',
+    confidence: 0.941,
+    description: 'High-pressure treated municipal supply water main burst underneath median pavement. Clean water flooding road shoulder and causing road foundation erosion.',
+    hazard: 'Potable water loss and asphalt base liquefaction',
+    department: 'Uttar Pradesh Jal Nigam / Noida Water Works',
+    urgency: 'MEDIUM',
+    recommended_action: 'Excavation of mainline joint and collar sleeve clamp installation',
+    severity_reasons: [
+      'Continuous clean potable water wastage exceeding 2000 L/hr',
+      'Flooding right-hand turning pocket'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Municipal Water Main Leakage Causing Road Flooding in Delta 1',
+    complaint_text_ai: 'Hydraulic surface pooling and geyser detected. Routed to Jal Nigam Rapid Response Division.',
+    complaint_text_final: 'Underground pipeline rupture spraying water continuously on Delta 1 Sector Main Road, Greater Noida.',
+    latitude: 28.4820,
+    longitude: 77.5110,
+    address: 'Delta 1 Sector Main Road, Greater Noida, UP 201308',
+    status: 'UNDER_INSPECTION',
+    report_count: 2,
+    created_at: '2026-10-26T11:15:00.000Z',
+    updated_at: '2026-10-27T09:30:00.000Z'
+  },
+
+  // 3. IN_PROGRESS
+  {
+    id: 'cmp-00144',
+    case_id: 'CASE-2026-00144',
+    civic_id: CIVIC_ID,
+    image_url: '/pothole-sample.jpg',
+    category: 'Open Drain / Manhole',
+    severity: 'CRITICAL',
+    confidence: 0.982,
+    description: 'Heavy cast-iron storm sewer manhole cover missing completely. Exposed vertical shaft drop of 3.2 meters immediately adjacent to bus terminal passenger walkway.',
+    hazard: 'Fatal fall hazard for pedestrians, children, and two-wheelers',
+    department: 'Greater Noida Industrial Development Authority (GNIDA)',
+    urgency: 'IMMEDIATE',
+    recommended_action: 'Immediate barricading and placement of SFRC heavy-duty manhole cover',
+    severity_reasons: [
+      'Shaft drop exceeds 3 meters with high pedestrian flow',
+      'Unlit section during evening rush hour',
+      'Near public transit boarding gate'
+    ],
+    contains_people_or_plates: false,
+    box_2d: [0.28, 0.35, 0.72, 0.81],
+    complaint_title: 'Critical Hazard: Open Uncovered Sewer Manhole Near Pari Chowk',
+    complaint_text_ai: 'Critical open chamber identified. Alert triggered to ward emergency response team.',
+    complaint_text_final: 'Uncovered sewer manhole on walkway leading to Pari Chowk Bus Terminal, Greater Noida. Immediate barricading and replacement required.',
+    latitude: 28.4682,
+    longitude: 77.5098,
+    address: 'Pari Chowk Junction Concourse, Greater Noida, UP 201310',
+    status: 'IN_PROGRESS',
+    report_count: 5,
+    created_at: '2026-10-24T16:20:00.000Z',
+    updated_at: '2026-10-27T18:00:00.000Z'
+  },
+
+  // 4. RESOLVED
+  {
+    id: 'cmp-00145',
+    case_id: 'CASE-2026-00145',
+    civic_id: CIVIC_ID,
+    image_url: '/about-hero-banner.png',
+    category: 'Electrical / Streetlight',
+    severity: 'HIGH',
+    confidence: 0.957,
+    description: 'Octagonal steel streetlight fixture detached from pole arm, dangling by live 230V wiring at 2.4m height over pedestrian path.',
+    hazard: 'Electrocution risk and overhead physical strike hazard',
+    department: 'Paschimanchal Vidyut Vitran Nigam Ltd (PVVNL)',
+    urgency: 'HIGH',
+    recommended_action: 'Circuit de-energization, arm re-welding, and IP66 LED luminaire replacement',
+    severity_reasons: [
+      'Exposed live conductor cables swaying in wind',
+      'Clearance below statutory 3.5m height for public pathway'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Dangerous Dangling Streetlight Fixture with Exposed Wiring in Sector Gamma 1',
+    complaint_text_ai: 'Structural fixture displacement and electrical hazard confirmed.',
+    complaint_text_final: 'Loose streetlight head hanging by live wire near Sector Gamma 1 market gate. Repaired and restored with new LED module.',
+    latitude: 28.4912,
+    longitude: 77.5230,
+    address: 'Sector Gamma 1 Perimeter Road, Greater Noida, UP 201308',
+    status: 'RESOLVED',
+    report_count: 1,
+    created_at: '2026-08-20T19:40:00.000Z',
+    updated_at: '2026-08-21T16:10:00.000Z'
+  },
+
+  // 5. RESOLVED
+  {
+    id: 'cmp-00146',
+    case_id: 'CASE-2026-00146',
+    civic_id: CIVIC_ID,
+    image_url: '/cta-banner-bg.png',
+    category: 'Footpath Encroachment',
+    severity: 'MEDIUM',
+    confidence: 0.938,
+    description: 'Approx 4 cubic meters of concrete rubble, bricks, and construction dirt dumped across the entire width of the tactile pedestrian sidewalk.',
+    hazard: 'Forces pedestrians into high-speed vehicular traffic lane',
+    department: 'Municipal Corporation of Gurugram (MCG) Enforcement Cell',
+    urgency: 'MEDIUM',
+    recommended_action: 'Backhoe loader clearance and penalty notice to builder',
+    severity_reasons: [
+      'Complete blockage of designated walking path',
+      'Tactile paving for visually impaired obstructed'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Illegal Commercial Construction Debris Blocking Main Footpath in Cyber Hub',
+    complaint_text_ai: 'Pedestrian right-of-way obstruction identified with 93.8% confidence.',
+    complaint_text_final: 'Construction waste blocking sidewalk near Building 10, DLF Cyber City. Completely cleared by municipal squad.',
+    latitude: 28.4960,
+    longitude: 77.0880,
+    address: 'Building 10 Access Road, DLF Cyber City, Gurugram, HR 122002',
+    status: 'RESOLVED',
+    report_count: 2,
+    created_at: '2026-07-14T09:10:00.000Z',
+    updated_at: '2026-07-15T17:30:00.000Z'
+  },
+
+  // 6. RESOLVED
+  {
+    id: 'cmp-00147',
+    case_id: 'CASE-2026-00147',
+    civic_id: CIVIC_ID,
+    image_url: '/pothole-demo.jpg',
+    category: 'Garbage & Sanitation',
+    severity: 'HIGH',
+    confidence: 0.971,
+    description: 'Large community waste container overflowing onto roadway for over 5 days. Foul odor, stray animals, and waste spillage creating public health hazard.',
+    hazard: 'Biochemical hazard, road narrowing, vector-borne disease vector',
+    department: 'Noida Authority Sanitation & Public Health Department',
+    urgency: 'HIGH',
+    recommended_action: 'Hydraulic dumper pickup, lime powder disinfection, and bin placement reset',
+    severity_reasons: [
+      'Organic waste decomposition blocking 1 full lane of roadway',
+      'Close proximity to metro station exit corridor'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Overflowing Community Dustbin near Knowledge Park Metro Station',
+    complaint_text_ai: 'Solid waste overflow categorized as public health violation.',
+    complaint_text_final: 'Garbage dump near Knowledge Park III metro pillar 84. Cleaned and sanitized.',
+    latitude: 28.4735,
+    longitude: 77.4912,
+    address: 'Knowledge Park III Metro Access Way, Greater Noida, UP 201310',
+    status: 'RESOLVED',
+    report_count: 4,
+    created_at: '2026-08-02T07:45:00.000Z',
+    updated_at: '2026-08-03T11:20:00.000Z'
+  },
+
+  // 7. IN_PROGRESS
+  {
+    id: 'cmp-00148',
+    case_id: 'CASE-2026-00148',
+    civic_id: CIVIC_ID,
+    image_url: '/pothole-sample.jpg',
+    category: 'Road Cave-In / Subsidence',
+    severity: 'CRITICAL',
+    confidence: 0.969,
+    description: 'Subterranean stormwater pipe rupture caused a 2.5m wide by 1.8m deep roadway cave-in. Subgrade soil completely washed away under bitumen layer.',
+    hazard: 'Catastrophic vehicle collapse risk on major connecting corridor',
+    department: 'Noida Authority Civil Engineering Division (Circle 4)',
+    urgency: 'IMMEDIATE',
+    recommended_action: 'Complete lane closure, trench shoring, drainage culvert replacement, and WMM compaction',
+    severity_reasons: [
+      'Void under asphalt extends beyond visible hole perimeter',
+      'High structural collapse risk under heavy axle loads'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Severe Road Cave-In Following Monsoon Stormwater Drainage Rupture',
+    complaint_text_ai: 'Ground subsidence failure classified under Code Red emergency response protocol.',
+    complaint_text_final: 'Dangerous crater cave-in on Sector 128 expressway service road. Excavator on site; trench shoring underway.',
+    latitude: 28.5280,
+    longitude: 77.3780,
+    address: 'Expressway Service Road, Sector 128, Noida, UP 201304',
+    status: 'IN_PROGRESS',
+    report_count: 7,
+    created_at: '2026-10-23T14:00:00.000Z',
+    updated_at: '2026-10-27T15:30:00.000Z'
+  },
+
+  // 8. RESOLVED
+  {
+    id: 'cmp-00149',
+    case_id: 'CASE-2026-00149',
+    civic_id: CIVIC_ID,
+    image_url: '/hero-banner.png',
+    category: 'Traffic Infrastructure',
+    severity: 'HIGH',
+    confidence: 0.948,
+    description: 'Automatic 4-way traffic signal system completely blacked out due to burnt relay controller. Resulted in severe 2-kilometer gridlock at major retail junction.',
+    hazard: 'High-speed vehicular side-impact collision risk at intersection',
+    department: 'Noida Traffic Police Engineering & Signal Wing',
+    urgency: 'HIGH',
+    recommended_action: 'Microprocessor motherboard replacement and UPS battery bank replenishment',
+    severity_reasons: [
+      'Intersection processes >45,000 passenger car units per hour',
+      'No manual traffic warden initially present'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Malfunctioning 4-Way Traffic Signal at Sector 18 Commercial Hub',
+    complaint_text_ai: 'Traffic signal failure confirmed via vision analysis. Replaced and synchronized.',
+    complaint_text_final: 'Traffic signals dead at Atta Market crossing Sector 18. New digital controller board installed and working.',
+    latitude: 28.5700,
+    longitude: 77.3250,
+    address: 'Sector 18 Commercial Concourse Crossing, Noida, UP 201301',
+    status: 'RESOLVED',
+    report_count: 6,
+    created_at: '2026-06-18T12:00:00.000Z',
+    updated_at: '2026-06-19T10:15:00.000Z'
+  },
+
+  // 9. RESOLVED
+  {
+    id: 'cmp-00150',
+    case_id: 'CASE-2026-00150',
+    civic_id: CIVIC_ID,
+    image_url: '/clean-road.jpg',
+    category: 'Drainage / Grates',
+    severity: 'MEDIUM',
+    confidence: 0.932,
+    description: 'Cast-iron roadside gutter grating broken in half with sharp jagged metal prongs sticking upward into cyclist lane.',
+    hazard: 'Tire blowout and severe injury to cyclists/two-wheelers',
+    department: 'Greater Noida Industrial Development Authority (GNIDA)',
+    urgency: 'MEDIUM',
+    recommended_action: 'Fabrication and seating of heavy-duty steel lockable drain grating',
+    severity_reasons: [
+      'Tire entrapment hazard in bicycle/scooter lane',
+      'Risk of pedestrians tripping at night'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Broken Stormwater Drain Iron Grate Causing Two-Wheeler Hazard',
+    complaint_text_ai: 'Metallic surface fracture identified. Replaced with ductile iron grate.',
+    complaint_text_final: 'Broken roadside drain grille replaced with reinforced steel grating in Knowledge Park II.',
+    latitude: 28.4610,
+    longitude: 77.4980,
+    address: 'Knowledge Park II Institutional Blvd, Greater Noida, UP 201310',
+    status: 'RESOLVED',
+    report_count: 1,
+    created_at: '2026-05-10T15:20:00.000Z',
+    updated_at: '2026-05-12T13:40:00.000Z'
+  },
+
+  // 10. IN_PROGRESS
+  {
+    id: 'cmp-00151',
+    case_id: 'CASE-2026-00151',
+    civic_id: CIVIC_ID,
+    image_url: '/pothole-demo.jpg',
+    category: 'Electrical Substation',
+    severity: 'HIGH',
+    confidence: 0.955,
+    description: '11kV roadside step-down distribution transformer displaying active dielectric cooling oil leakage pooling around curb.',
+    hazard: 'Transformer explosion, flashover fire, and neighborhood blackout risk',
+    department: 'PVVNL Discom Substation Maintenance Unit',
+    urgency: 'HIGH',
+    recommended_action: 'Isolation switch trip, gasket seal replacement, and oil level top-up',
+    severity_reasons: [
+      'Combustible oil leakage near residential cluster',
+      'Overheating risk under peak load conditions'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'High-Voltage Substation Transformer Oil Seepage Near Residential Cluster',
+    complaint_text_ai: 'Dielectric fluid leakage verified. Maintenance team dispatched.',
+    complaint_text_final: 'Oil leaking from transformer base near Sector 62 C-Block Market. Maintenance van deployed.',
+    latitude: 28.6240,
+    longitude: 77.3610,
+    address: 'C-Block Commercial Cluster, Sector 62, Noida, UP 201309',
+    status: 'IN_PROGRESS',
+    report_count: 3,
+    created_at: '2026-10-25T11:00:00.000Z',
+    updated_at: '2026-10-27T17:15:00.000Z'
+  },
+
+  // 11. RESOLVED
+  {
+    id: 'cmp-00152',
+    case_id: 'CASE-2026-00152',
+    civic_id: CIVIC_ID,
+    image_url: '/clean-road.jpg',
+    category: 'Accessibility Infrastructure',
+    severity: 'LOW',
+    confidence: 0.915,
+    description: 'Shattered interlocking paver tiles and shifted granite curb block completely blocking wheelchair access ramp at public park entrance.',
+    hazard: 'Denial of universal barrier-free access for disabled and elderly citizens',
+    department: 'Noida Authority Horticulture & Civil Maintenance',
+    urgency: 'LOW',
+    recommended_action: 'Re-level sub-base with stone dust and reinstall interlocking paver tiles with 1:12 slope gradient',
+    severity_reasons: [
+      'Direct violation of Rights of Persons with Disabilities guidelines',
+      'Public park access obstruction'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Broken Pavement Curb Slabs Obstructing Wheelchair Access Ramp',
+    complaint_text_ai: 'Accessibility ramp damage confirmed. Pavers recast and ramp regraded.',
+    complaint_text_final: 'Wheelchair ramp repaired and resurfaced at Sector 50 Central Park entrance.',
+    latitude: 28.5780,
+    longitude: 77.3680,
+    address: 'Sector 50 Central Park Gate 2, Noida, UP 201301',
+    status: 'RESOLVED',
+    report_count: 1,
+    created_at: '2026-04-05T10:30:00.000Z',
+    updated_at: '2026-04-08T16:00:00.000Z'
+  },
+
+  // 12. UNDER_INSPECTION / SUBMITTED
+  {
+    id: 'cmp-00153',
+    case_id: 'CASE-2026-00153',
+    civic_id: CIVIC_ID,
+    image_url: '/civic_bg.jpg',
+    category: 'Public Obstruction / Tree Hazard',
+    severity: 'MEDIUM',
+    confidence: 0.944,
+    description: 'Heavy storm-damaged banyan tree limb split from trunk, resting onto low-hanging fiber-optic cables and partially blocking the street.',
+    hazard: 'Imminent cable snapping and street transit obstruction',
+    department: 'Noida Authority Horticulture Wing / Disaster Cell',
+    urgency: 'MEDIUM',
+    recommended_action: 'Hydraulic boom crane trimming and log clearance',
+    severity_reasons: [
+      'Weight resting on overhead telecom infrastructure',
+      'Narrow residential street with one-way traffic'
+    ],
+    contains_people_or_plates: false,
+    complaint_title: 'Uprooted Heavy Tree Branch Blocking Street & Optical Cables',
+    complaint_text_ai: 'Arboreal obstruction verified. Slated for departmental crane pruning.',
+    complaint_text_final: 'Cracked heavy tree branch resting on internet cables at Sector 63 Electronic City. Tree pruning scheduled.',
+    latitude: 28.6290,
+    longitude: 77.3820,
+    address: 'Electronic City Outer Ring, Sector 63, Noida, UP 201307',
+    status: 'UNDER_INSPECTION',
+    report_count: 2,
+    created_at: '2026-10-27T08:00:00.000Z',
+    updated_at: '2026-10-27T14:30:00.000Z'
+  }
+];
+
+// Events for these cases
+const caseEvents = [
+  // Events for CASE-2026-00142
+  {
+    id: 'evt-142-1',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    event_type: 'REPORT_SUBMITTED',
+    title: 'Grievance Submitted via CivicLens AI',
+    note: 'Citizen Tarun Kushwaha submitted photo with GPS coordinates (28.6285 N, 77.3654 E). YOLOv8 detected road crater with 96.4% confidence.',
+    author: 'CivicLens AI System',
+    created_at: '2026-09-12T08:30:00.000Z'
+  },
+  {
+    id: 'evt-142-2',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    event_type: 'OFFICER_ASSIGNED',
+    title: 'Assigned to Central PWD (Roads Wing)',
+    note: 'Forwarded to Junior Engineer Amit Verma (CPWD Ward 4). Statutory SLA deadline set to 48 hours.',
+    author: 'Central Municipal Dispatcher',
+    created_at: '2026-09-12T09:15:00.000Z'
+  },
+  {
+    id: 'evt-142-3',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    event_type: 'SITE_INSPECTION',
+    title: 'Field Inspection Completed',
+    note: 'Inspection confirmed 45cm diameter crater. Work order #CPWD-2026-781 generated for hot-mix asphalt patching.',
+    author: 'Amit Verma (Junior Engineer)',
+    created_at: '2026-09-13T11:00:00.000Z'
+  },
+  {
+    id: 'evt-142-4',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    event_type: 'WORK_COMPLETED',
+    title: 'Road Surface Patch Repaired',
+    note: 'Cold-mix asphalt patch laid and vibratory roller compacted. Surface level aligned with surrounding bitumen.',
+    author: 'CPWD Maintenance Gang #3',
+    created_at: '2026-09-14T13:30:00.000Z'
+  },
+  {
+    id: 'evt-142-5',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    event_type: 'RESOLVED_VERIFIED',
+    title: 'Photographic Resolution Audit Verified',
+    note: 'Post-repair photographic audit passed with 98.1% surface regularity score. +20 Civic Impact Points awarded to reporter.',
+    author: 'CivicLens AI Vision Auditor',
+    created_at: '2026-09-14T14:45:00.000Z'
+  },
+
+  // Events for CASE-2026-00144
+  {
+    id: 'evt-144-1',
+    complaint_id: 'cmp-00144',
+    case_id: 'CASE-2026-00144',
+    event_type: 'REPORT_SUBMITTED',
+    title: 'Critical Hazard Alert Logged',
+    note: 'Uncovered sewer manhole near Pari Chowk identified. Automated Code Red escalation triggered.',
+    author: 'CivicLens AI System',
+    created_at: '2026-10-24T16:20:00.000Z'
+  },
+  {
+    id: 'evt-144-2',
+    complaint_id: 'cmp-00144',
+    case_id: 'CASE-2026-00144',
+    event_type: 'EMERGENCY_BARRICADE',
+    title: 'Safety Barricades Deployed on Site',
+    note: 'Reflective cones and warning ribbons placed around shaft to prevent accidents.',
+    author: 'GNIDA Quick Response Team',
+    created_at: '2026-10-24T17:30:00.000Z'
+  },
+  {
+    id: 'evt-144-3',
+    complaint_id: 'cmp-00144',
+    case_id: 'CASE-2026-00144',
+    event_type: 'WORK_IN_PROGRESS',
+    title: 'Reinforced Concrete Cover Casting',
+    note: 'Precast SFRC 600mm heavy-duty cover dispatched from Greater Noida depot. Installation in progress.',
+    author: 'GNIDA Maintenance Unit',
+    created_at: '2026-10-27T18:00:00.000Z'
+  }
+];
+
+// Evidence records
+const evidenceRecords = [
+  {
+    id: 'ev-142-1',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    image_url: '/pothole-demo.jpg',
+    kind: 'ORIGINAL',
+    note: 'Citizen report photo showing 45cm road pothole on Sector 62',
+    created_at: '2026-09-12T08:30:00.000Z'
+  },
+  {
+    id: 'ev-142-2',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    image_url: '/clean-road.jpg',
+    kind: 'AFTER',
+    note: 'Inspection audit photo showing completed asphalt compaction',
+    created_at: '2026-09-14T14:40:00.000Z'
+  },
+  {
+    id: 'ev-144-1',
+    complaint_id: 'cmp-00144',
+    case_id: 'CASE-2026-00144',
+    image_url: '/pothole-sample.jpg',
+    kind: 'ORIGINAL',
+    note: 'Photograph of uncovered manhole near Pari Chowk',
+    created_at: '2026-10-24T16:20:00.000Z'
+  }
+];
+
+// Resolution check for CASE-2026-00142
+const resolutionChecks = [
+  {
+    id: 'res-142',
+    complaint_id: 'cmp-00142',
+    case_id: 'CASE-2026-00142',
+    after_image_url: '/clean-road.jpg',
+    resolution_status: 'RESOLVED',
+    confidence: 0.981,
+    before_summary: '45cm asphalt road crater depth 8cm on high-speed lane',
+    after_summary: 'Seamless hot-mix bitumen patch leveled with road grade',
+    same_location_likelihood: 'HIGH (99.2% GPS & roadside curb texture match)',
+    remaining_issues: [],
+    admin_confirmed: true,
+    created_at: '2026-09-14T14:45:00.000Z'
+  }
+];
+
+const dbState = {
+  users: [userRecord],
+  complaints,
+  evidence: evidenceRecords,
+  case_events: caseEvents,
+  resolution_checks: resolutionChecks,
+  duplicate_decisions: [],
+  sessions_metrics: [
+    {
+      id: 'metric-1',
+      time_to_submit_seconds: 14.2,
+      complaint_edit_ratio: 0.12,
+      created_at: '2026-10-25T12:00:00.000Z'
+    }
+  ]
+};
+
+fs.writeFileSync(dbPath, JSON.stringify(dbState, null, 2), 'utf8');
+console.log('Successfully seeded database at:', dbPath);
+console.log('Total Complaints:', complaints.length);
+console.log('Resolved:', complaints.filter(c => c.status === 'RESOLVED').length);
+console.log('In Progress:', complaints.filter(c => c.status === 'IN_PROGRESS').length);
+console.log('Under Inspection:', complaints.filter(c => c.status === 'UNDER_INSPECTION').length);
+console.log('User Civic ID:', userRecord.civic_id);

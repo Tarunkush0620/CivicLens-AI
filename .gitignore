@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# Testing and coverage
+coverage/
+.nyc_output
+
+# Production builds
+dist/
+build/
+**/dist/
+**/build/
+
+# Environment files
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE and Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Uploads staging / storage
+uploads/*
+!uploads/.gitkeep
+**/uploads/*
+!**/uploads/.gitkeep
+staging/
+storage/
+temp/
+
+# Large Datasets & Training Images (Download separately via Roboflow/Kaggle)
+Datasets/
+**/Datasets/
+eval/images/
+eval/merged_yolo_dataset/

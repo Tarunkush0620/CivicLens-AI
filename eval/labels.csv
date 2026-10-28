@@ -1,0 +1,7 @@
+image_id,category,severity,hazard,description
+sample_01.jpg,Pothole,HIGH,Accident hazard to two-wheelers,Deep pothole on asphalt roadway
+sample_02.jpg,Garbage,MEDIUM,Vector breeding and odor,Accumulated municipal refuse on sidewalk
+sample_03.jpg,Broken Streetlight,HIGH,Nocturnal collision risk,Damaged pole and non-functioning streetlight
+sample_04.jpg,Open Manhole,CRITICAL,Fatal fall risk for pedestrians,Missing manhole cover on footpath
+sample_05.jpg,Water Leakage,MEDIUM,Water loss and pavement erosion,Water pipe leakage flooding street
+sample_06.jpg,Damaged Footpath,LOW,Trip hazard for pedestrians,Cracked and uneven concrete paving blocks
